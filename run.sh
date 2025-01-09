@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
-exec python3 ./sender/sender.py &
-exec python3 ./triger/triger.py
+exec python ./sender/sender.py &
+exec python ./triger/triger.py
