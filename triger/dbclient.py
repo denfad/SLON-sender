@@ -2,12 +2,13 @@ from sqlalchemy import Table, Column, Integer, String, MetaData
 from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select
+from sqlalchemy.sql import and_
 
 
 class DBClient:
 
     def __init__(self, db_host, db_name, db_user, db_password):
-        self.engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}', echo=True)
+        self.engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}')
         self.metadata = MetaData()
 
         self.targets = Table(
@@ -31,8 +32,7 @@ class DBClient:
             connection.commit()
 
     def find_user_by_name_and_type(self, username, type):
-        query = select(self.targets).where(self.targets.c.target == username
-                                      and self.targets.c.schedule == type)
+        query = select(self.targets).where(and_(self.targets.c.target == username,self.targets.c.schedule == type))
         with self.engine.connect() as connection:
             res = connection.execute(query).one_or_none()
             connection.commit()

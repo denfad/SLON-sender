@@ -59,7 +59,7 @@ async def send_message():
 
 try:
     sender_port = int(config('SENDER_PORT'))
-    app.run(port=sender_port, host="0.0.0.0", debug=True)
+    app.run(port=sender_port, host="0.0.0.0")
 except (KeyboardInterrupt, SystemExit):
     # Останавливаем планировщик при завершении работы приложения
     scheduler.shutdown()

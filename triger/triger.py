@@ -30,6 +30,7 @@ db_client = DBClient(db_host, db_name, db_user, db_password)
 # Обработчик бота
 @bot.message_handler(content_types=['text'])
 def toxic_by_message(message: Message):
+    logger.info(f'Get message from user {message.from_user.username} in chat {message.chat.id}')
     # проверяем есть ли в бд связка username + chat_id, если нет то добавляем
     db_client.insert_user_chat(message.chat.id, message.from_user.username)
 
@@ -38,10 +39,10 @@ def toxic_by_message(message: Message):
 
     # данный пользователь есть в базе
     if res is not None:
-        logger.info(f'User {res._t.target} send message to chat {message.chat.id}')
         # выбираем будем ли его травить
         choice = random.randint(1,5)
         if choice == 5:
+            logger.info(f'User {res._t.target} send message to chat {message.chat.id}')
             send_toxic_message(message.chat.id, message.from_user.username, message.id)
 
 
@@ -53,6 +54,7 @@ def toxic_with_delay():
         # рассылаем каждому пользователю по чатам сообщения
         chats = db_client.find_user_chats(user._t.target)
         for chat in chats:
+            logger.info(f'User {chat._t.username} send message to chat {chat._t.chat_id}')
             send_toxic_message(chat._t.chat_id, chat._t.username)
 
 # рандомный токсик
@@ -66,6 +68,7 @@ def random_toxic():
             # рассылаем пользователю по чатам сообщения
             chats = db_client.find_user_chats(user._t.target)
             for chat in chats:
+                logger.info(f'User {chat._t.username} send message to chat {chat._t.chat_id}')
                 send_toxic_message(chat._t.chat_id, chat._t.username)
 
 
@@ -84,7 +87,7 @@ random_scheduler.add_job(func=random_toxic, trigger="interval", seconds=rand_tox
 random_scheduler.start()
 
 try:
-    bot.polling(none_stop=True, interval=1)
+    bot.polling(none_stop=True, interval=10)
 except (KeyboardInterrupt, SystemExit):
     # Останавливаем планировщик при завершении работы приложения
     random_scheduler.shutdown()
