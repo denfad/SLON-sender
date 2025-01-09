@@ -1,0 +1,8 @@
+python-decouple==3.8
+requests
+Flask[async]
+connexion[swagger-ui]==2.14.1
+psycopg2-binary
+sqlalchemy
+APScheduler
+pyTelegramBotAPI
