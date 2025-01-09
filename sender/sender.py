@@ -5,8 +5,11 @@ from decouple import config
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logging.getLogger('apscheduler').setLevel(logging.WARNING)
+logger = logging.getLogger("SENDER")
+
+logger.info("Starting Sender")
 
 token = config('BOT_TOKEN')
 messages = queue.Queue()
@@ -17,20 +20,20 @@ def send(text, chat_id, reply_id):
     try:
         if chat_id is not None and reply_id is not None:
             bot.send_message(chat_id=chat_id, text=text, reply_to_message_id=reply_id)
-            logging.info(f'Send message \"{text}\" to chat {chat_id} for message {reply_id}')
+            logger.info(f'Send message \"{text}\" to chat {chat_id} for message {reply_id}')
         elif chat_id is not None:
             bot.send_message(chat_id=chat_id, text=text)
-            logging.info(f'Send message \"{text}\" to chat {chat_id}')
+            logger.info(f'Send message \"{text}\" to chat {chat_id}')
         else:
-            logging.error(f'Unexpected message')
+            logger.error(f'Unexpected message')
     except Exception as E:
-        logging.error(f'Telegram throw exception {E}')
+        logger.error(f'Telegram throw exception {E}')
 
 
 def read_queue():
     if not messages.empty():
         data = messages.get_nowait()
-        logging.info(f'Working on {data}')
+        logger.info(f'Working on {data}')
         chat_id = data.get("chat_id")
         reply_id = data.get("reply_id")
         text = data.get("text")

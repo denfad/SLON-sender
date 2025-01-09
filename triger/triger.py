@@ -7,6 +7,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from senderclient import send_toxic_message
 from dbclient import DBClient
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+logging.getLogger('apscheduler').setLevel(logging.WARNING)
+logger = logging.getLogger("TRIGER")
+
+logger.info("Starting Triger")
 
 SCHEDULE_BY_MESSAGE = 0
 SCHEDULE_WITH_DELAY = 1
@@ -33,7 +38,7 @@ def toxic_by_message(message: Message):
 
     # данный пользователь есть в базе
     if res is not None:
-        logging.info(f'User {res._t.target} send message to chat {message.chat.id}')
+        logger.info(f'User {res._t.target} send message to chat {message.chat.id}')
         # выбираем будем ли его травить
         choice = random.randint(1,5)
         if choice == 5:

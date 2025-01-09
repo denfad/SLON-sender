@@ -1,8 +1,8 @@
 import requests
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logging.getLogger('apscheduler').setLevel(logging.WARNING)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
+logger = logging.getLogger("TRIGER")
 
 def send_toxic_message(chat_id, username = None, reply_id = None):
     text = "Соси бибу" if reply_id is not None else f'@{username} соси бибу'
@@ -10,5 +10,5 @@ def send_toxic_message(chat_id, username = None, reply_id = None):
     try:
         requests.post("http://localhost:8000/send", json=body)
     except Exception as E:
-        logging.error(f'Sender throw exception {E}')
+        logger.error(f'Sender throw exception {E}')
 
