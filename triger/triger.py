@@ -1,11 +1,14 @@
 import telebot
-from decouple import config
 from telebot.types import Message
 import logging
 import random
 from apscheduler.schedulers.background import BackgroundScheduler
 from senderclient import send_toxic_message
 from dbclient import DBClient
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logging.getLogger('apscheduler').setLevel(logging.WARNING)
@@ -19,11 +22,11 @@ SCHEDULE_RANDOM = 2
 
 
 # настройки БД
-bot = telebot.TeleBot(config('BOT_TOKEN'))
-db_host = config('DB_HOST')
-db_name = config('DB_NAME')
-db_user = config('DB_USER')
-db_password= config('DB_PASSWORD')
+bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
+db_host = os.getenv('DB_HOST')
+db_name = os.getenv('DB_NAME')
+db_user = os.getenv('DB_USER')
+db_password= os.getenv('DB_PASSWORD')
 db_client = DBClient(db_host, db_name, db_user, db_password)
 
 
@@ -74,14 +77,14 @@ def random_toxic():
 
 # Настройка планировщика задач для угнетения каждый час
 # фоновая задача выполнения каждый час
-toxic_delay = int(config('TOXIC_DELAY'))
+toxic_delay = int(os.getenv('TOXIC_DELAY'))
 delay_scheduler = BackgroundScheduler()
 delay_scheduler.add_job(func=toxic_with_delay, trigger="interval", seconds=toxic_delay)
 delay_scheduler.start()
 
 # Настройка планировщика задач для рандомного угнетения
 # фоновая задача выполнения каждые пол часа
-rand_toxic_delay = int(config('TOXIC_RANDOM_DELAY'))
+rand_toxic_delay = int(os.getenv('TOXIC_RANDOM_DELAY'))
 random_scheduler = BackgroundScheduler()
 random_scheduler.add_job(func=random_toxic, trigger="interval", seconds=rand_toxic_delay)
 random_scheduler.start()

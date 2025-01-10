@@ -8,7 +8,6 @@ RUN mkdir triger
 COPY /sender /app/sender
 COPY /triger /app/triger
 COPY requirements.txt /app
-COPY .env /app
 COPY run.sh /app
 
 RUN pip install --no-cache-dir -r requirements.txt

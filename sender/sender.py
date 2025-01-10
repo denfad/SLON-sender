@@ -1,9 +1,12 @@
 import telebot
 from flask import Flask, request, jsonify
 import queue
-from decouple import config
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 logging.getLogger('apscheduler').setLevel(logging.WARNING)
@@ -11,7 +14,7 @@ logger = logging.getLogger("SENDER")
 
 logger.info("Starting Sender")
 
-token = config('BOT_TOKEN')
+token = os.getenv('BOT_TOKEN')
 messages = queue.Queue()
 
 
@@ -58,7 +61,7 @@ async def send_message():
 
 
 try:
-    sender_port = int(config('SENDER_PORT'))
+    sender_port = int(os.getenv('SENDER_PORT'))
     app.run(port=sender_port, host="0.0.0.0")
 except (KeyboardInterrupt, SystemExit):
     # Останавливаем планировщик при завершении работы приложения

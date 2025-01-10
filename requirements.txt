@@ -1,7 +1,7 @@
-python-decouple==3.8
 requests
 Flask[async]
 psycopg2-binary
 sqlalchemy
 APScheduler
 pyTelegramBotAPI
+python-dotenv
