@@ -5,3 +5,4 @@ sqlalchemy
 APScheduler
 pyTelegramBotAPI
 python-dotenv
+redis

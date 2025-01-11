@@ -36,7 +36,7 @@ class DBClient:
     def find_user_by_name_and_type(self, username, type):
         query = select(self.targets).where(and_(self.targets.c.target == username,self.targets.c.schedule == type))
         with self.engine.connect() as connection:
-            res = connection.execute(query).one_or_none()
+            res = connection.execute(query).first()
             connection.commit()
         return res
 
