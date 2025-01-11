@@ -6,3 +6,4 @@ APScheduler
 pyTelegramBotAPI
 python-dotenv
 redis
+pika

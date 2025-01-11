@@ -25,15 +25,11 @@ SCHEDULE_RANDOM = 2
 redis_host = os.getenv('REDIS_HOST')
 redis_password = os.getenv('REDIS_PASS')
 redis_client = redis.Redis(host=redis_host, db=0, password=redis_password)
-
-# настройки БД
+# настройки бота
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
-db_host = os.getenv('DB_HOST')
-db_name = os.getenv('DB_NAME')
-db_user = os.getenv('DB_USER')
-db_password= os.getenv('DB_PASSWORD')
-db_client = DBClient(db_host, db_name, db_user, db_password)
-
+# настройки бд
+db_client = DBClient()
+# взаимодействие с моделью
 model_client = ModelClient(redis_client)
 
 # Обработчик бота
