@@ -35,10 +35,10 @@ db_client = DBClient(db_host, db_name, db_user, db_password)
 def toxic_by_message(message: Message):
     logger.info(f'Get message from user {message.from_user.username} in chat {message.chat.id}')
     # проверяем есть ли в бд связка username + chat_id, если нет то добавляем
-    db_client.insert_user_chat(message.chat.id, message.from_user.username)
+    db_client.insert_user_chat(message.chat.id, f'@{message.from_user.username}')
 
     # ищем пользователя в БД
-    res = db_client.find_user_by_name_and_type(message.from_user.username, SCHEDULE_BY_MESSAGE)
+    res = db_client.find_user_by_name_and_type(f'@{message.from_user.username}', SCHEDULE_BY_MESSAGE)
 
     # данный пользователь есть в базе
     if res is not None:
@@ -46,7 +46,7 @@ def toxic_by_message(message: Message):
         choice = random.randint(1,5)
         if choice == 5:
             logger.info(f'User {res._t.target} send message to chat {message.chat.id}')
-            send_toxic_message(message.chat.id, message.from_user.username, message.id)
+            send_toxic_message(message.chat.id, f'@{message.from_user.username}', message.id)
 
 
 #  токсичить каждый час
