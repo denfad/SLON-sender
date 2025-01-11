@@ -90,7 +90,7 @@ random_scheduler.add_job(func=random_toxic, trigger="interval", seconds=rand_tox
 random_scheduler.start()
 
 try:
-    bot.polling(none_stop=True, interval=10)
+    bot.infinity_polling(timeout=10, long_polling_timeout=5)
 except (KeyboardInterrupt, SystemExit):
     # Останавливаем планировщик при завершении работы приложения
     random_scheduler.shutdown()

@@ -16,13 +16,15 @@ class DBClient:
             Column('creator_id', Integer),
             Column('target', String),
             Column('schedule', Integer),
-            Column('tags', String)
+            Column('tags', String),
+            schema="app"
         )
 
         self.user_chats = Table(
             'user_chats', self.metadata,
             Column('username', String),
-            Column('chat_id', Integer)
+            Column('chat_id', Integer),
+            schema="app"
         )
 
     def insert_user_chat(self, chat_id, username):
