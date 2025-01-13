@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, MetaData
+from sqlalchemy import Table, Column, Integer, String, MetaData,ARRAY
 from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select
@@ -21,7 +21,7 @@ class DBClient:
             Column('creator_id', Integer),
             Column('target', String),
             Column('schedule', Integer),
-            Column('tags', String),
+            Column('tags', ARRAY(Integer)),
             schema="app"
         )
 

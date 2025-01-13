@@ -1,7 +1,7 @@
 import telebot
 from telebot.types import Message
 import logging
-import random
+import secrets
 from apscheduler.schedulers.background import BackgroundScheduler
 from senderclient import ModelClient
 from dbclient import DBClient
@@ -24,7 +24,10 @@ SCHEDULE_RANDOM = 2
 # redis
 redis_host = os.getenv('REDIS_HOST')
 redis_password = os.getenv('REDIS_PASS')
-redis_client = redis.Redis(host=redis_host, db=0, password=redis_password)
+if redis_password is None:
+    redis_client = redis.Redis(host=redis_host, db=0)
+else:
+    redis_client = redis.Redis(host=redis_host, db=0, password=redis_password)
 # настройки бота
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 # настройки бд
@@ -49,8 +52,8 @@ def toxic_by_message(message: Message):
     # данный пользователь есть в базе
     if res is not None:
         # выбираем будем ли его травить
-        choice = random.randint(1,5)
-        if choice == 5:
+        choice = secrets.choice([1,2,3])
+        if choice == 3:
             logger.info(f'User {res._t.target} send message to chat {message.chat.id}')
             model_client.send_toxic_message(message.chat.id, res._t.tags, f'@{message.from_user.username}', message.id)
 
@@ -72,8 +75,8 @@ def random_toxic():
     users = db_client.find_users_by_type(SCHEDULE_RANDOM)
 
     for user in users:
-        choice = random.randint(1, 10)
-        if choice == 10:
+        choice = secrets.choice([1,2])
+        if choice == 2:
             # рассылаем пользователю по чатам сообщения
             chats = db_client.find_user_chats(user._t.target)
             for chat in chats:
@@ -83,16 +86,14 @@ def random_toxic():
 
 # Настройка планировщика задач для угнетения каждый час
 # фоновая задача выполнения каждый час
-toxic_delay = int(os.getenv('TOXIC_DELAY'))
 delay_scheduler = BackgroundScheduler()
-delay_scheduler.add_job(func=toxic_with_delay, trigger="interval", seconds=toxic_delay)
+delay_scheduler.add_job(toxic_with_delay, 'cron', hour='0-23')
 delay_scheduler.start()
 
 # Настройка планировщика задач для рандомного угнетения
 # фоновая задача выполнения каждые пол часа
-rand_toxic_delay = int(os.getenv('TOXIC_RANDOM_DELAY'))
 random_scheduler = BackgroundScheduler()
-random_scheduler.add_job(func=random_toxic, trigger="interval", seconds=rand_toxic_delay)
+random_scheduler.add_job(random_toxic, 'cron', hour='0-23')
 random_scheduler.start()
 
 try:

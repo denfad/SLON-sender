@@ -6,6 +6,13 @@ from dotenv import load_dotenv
 import pika
 import time
 import json
+from flask import Flask
+
+app = Flask(__name__)
+@app.route('/health')
+def index():
+    return "Hello, World!"
+
 
 INCOMING_TASKS = "incoming_tasks"
 READY_TASKS = "ready_tasks"
@@ -37,18 +44,24 @@ def send(text, chat_id, reply_id, username):
         logger.error(f'Telegram throw exception {E}')
 
 
-rabbit_host = os.getenv('RABBIT_HOST')
-rabbit_user = os.getenv('RABBIT_USER')
-rabbit_password = os.getenv('RABBIT_PASSWORD')
-credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
-rabbit_client = pika.BlockingConnection(pika.ConnectionParameters(host=rabbit_host, credentials=credentials))
+def create_rabbit_client():
+    rabbit_host = os.getenv('RABBIT_HOST')
+    rabbit_user = os.getenv('RABBIT_USER')
+    rabbit_password = os.getenv('RABBIT_PASSWORD')
+    if rabbit_user is not None:
+        credentials = pika.PlainCredentials(rabbit_user, rabbit_password)
+        return pika.BlockingConnection(pika.ConnectionParameters(host=rabbit_host, credentials=credentials))
+    else:
+        return pika.BlockingConnection(pika.ConnectionParameters(host=rabbit_host))
 
 
 def read_queue():
+    rabbit_client = create_rabbit_client()
     channel = rabbit_client.channel()
-    channel.queue_declare(queue=INCOMING_TASKS)
-    message = channel.basic_get(INCOMING_TASKS, auto_ack=True)
+    channel.queue_declare(queue=READY_TASKS)
+    message = channel.basic_get(READY_TASKS, auto_ack=True)
     channel.close()
+    rabbit_client.close()
     if message[2] is not None:
         data = json.loads(message[2].decode())
         logger.info(f'Working on {data}')
@@ -61,13 +74,12 @@ def read_queue():
 
 # Настройка планировщика задач
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=read_queue, trigger="interval", seconds=3)
+scheduler.add_job(func=read_queue, trigger="interval", seconds=1, max_instances=30)
 
 try:
     # Стартуем планировщик
     scheduler.start()
-    while True:
-        time.sleep(10)
+    app.run(port=8000)
 except (KeyboardInterrupt, SystemExit):
     # Останавливаем планировщик при завершении работы приложения
     scheduler.shutdown()
